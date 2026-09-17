@@ -43,7 +43,8 @@ class MarkingRequest extends FormRequest
 
         return [
             'name' => ['required', 'string', 'max:120'],
-            'slug' => ['required', 'string', 'max:140', 'alpha_dash:ascii',
+            // Derived from the name when left empty: no separate error when the name is missing.
+            'slug' => ['required_with:name', 'nullable', 'string', 'max:140', 'alpha_dash:ascii',
                 Rule::unique('markings', 'slug')->ignore($creating ? null : $marking->id)],
             'technique' => ['required', Rule::enum(MarkingTechnique::class)],
             'ink_color' => ['required', 'string', 'max:40'],

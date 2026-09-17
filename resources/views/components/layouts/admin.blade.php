@@ -83,6 +83,18 @@
                     <x-icon name="alert" class="h-4 w-4" /> {{ session('error') }}
                 </div>
             @endif
+            @if ($errors->any())
+                {{-- Some forms sit far down the page (variants, stock adjustments):
+                     the summary makes a refusal visible without scrolling. --}}
+                <div class="mb-6 border border-red-200 bg-white p-4 text-sm text-red-700" role="alert">
+                    <p class="flex items-center gap-2 font-medium"><x-icon name="alert" class="h-4 w-4" /> Rien n'a été enregistré :</p>
+                    <ul class="mt-2 list-inside list-disc space-y-1">
+                        @foreach ($errors->all() as $message)
+                            <li>{{ $message }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
             {{ $slot }}
         </main>
     </div>

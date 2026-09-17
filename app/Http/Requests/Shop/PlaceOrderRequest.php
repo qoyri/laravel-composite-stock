@@ -29,22 +29,6 @@ class PlaceOrderRequest extends FormRequest
     /**
      * @return array<string, string>
      */
-    public function attributes(): array
-    {
-        return [
-            'email' => 'e-mail',
-            'first_name' => 'prénom',
-            'last_name' => 'nom',
-            'phone' => 'téléphone',
-            'address_line' => 'adresse',
-            'postal_code' => 'NPA',
-            'city' => 'localité',
-        ];
-    }
-
-    /**
-     * @return array<string, string>
-     */
     public function messages(): array
     {
         return [

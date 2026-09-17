@@ -41,7 +41,8 @@ class ArticleRequest extends FormRequest
         return [
             'category_id' => ['required', 'integer', Rule::exists('categories', 'id')],
             'name' => ['required', 'string', 'max:120'],
-            'slug' => ['required', 'string', 'max:140', 'alpha_dash:ascii',
+            // Derived from the name when left empty: no separate error when the name is missing.
+            'slug' => ['required_with:name', 'nullable', 'string', 'max:140', 'alpha_dash:ascii',
                 Rule::unique('articles', 'slug')->ignore($article instanceof Article ? $article->id : null)],
             'description' => ['required', 'string', 'max:2000'],
             'material' => ['nullable', 'string', 'max:120'],
