@@ -3,17 +3,24 @@
 declare(strict_types=1);
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\ConcurrencyTestCase;
 use Tests\TestCase;
 
 /*
  * Every test boots the framework. Feature tests run inside a transaction that
- * is rolled back afterwards (RefreshDatabase).
+ * is rolled back afterwards (RefreshDatabase) — except the concurrency tests,
+ * which need committed data visible to other connections and opt into
+ * DatabaseTruncation themselves.
  */
 pest()->extend(TestCase::class)->in('Unit');
 
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Feature');
+
+pest()->extend(ConcurrencyTestCase::class)
+    ->group('concurrency')
+    ->in('Concurrency');
 
 /*
  * Shared builders for stock scenarios.
