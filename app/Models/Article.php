@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\Silhouette;
 use Database\Factories\ArticleFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\RouteKey;
@@ -25,12 +26,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $slug
  * @property string $description
  * @property string|null $material
+ * @property Silhouette $silhouette
  * @property bool $is_active
  * @property-read Category $category
  * @property-read Collection<int, ArticleVariant> $variants
  * @property-read Collection<int, Product> $products
  */
-#[Fillable(['category_id', 'name', 'slug', 'description', 'material', 'is_active'])]
+#[Fillable(['category_id', 'name', 'slug', 'description', 'material', 'silhouette', 'is_active'])]
 #[RouteKey('slug')]
 class Article extends Model
 {
@@ -94,6 +96,7 @@ class Article extends Model
     protected function casts(): array
     {
         return [
+            'silhouette' => Silhouette::class,
             'is_active' => 'boolean',
         ];
     }

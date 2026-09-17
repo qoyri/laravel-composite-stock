@@ -16,11 +16,11 @@ class MarkingFactory extends Factory
 {
     public function definition(): array
     {
-        $name = rtrim(fake()->unique()->sentence(3), '.');
+        $name = rtrim(fake()->sentence(3), '.').' '.fake()->unique()->numberBetween(1, 9_999_999);
 
         return [
             'name' => $name,
-            'slug' => Str::slug($name).'-'.fake()->unique()->numberBetween(1, 99999),
+            'slug' => Str::slug($name),
             'technique' => MarkingTechnique::ScreenPrinting,
             'ink_color' => 'Blanc',
             'ink_hex' => '#FFFFFF',

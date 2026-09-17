@@ -6,8 +6,13 @@ namespace App\Providers;
 
 use App\Models\ArticleVariant;
 use App\Models\Marking;
+use App\Models\Product;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,5 +28,14 @@ class AppServiceProvider extends ServiceProvider
             'article_variant' => ArticleVariant::class,
             'marking' => Marking::class,
         ]);
+
+        // Storefront product URLs only resolve to products that can be sold.
+        Route::bind('sellableProduct', fn (string $slug) => Product::query()
+            ->sellable()
+            ->where('slug', $slug)
+            ->firstOrFail());
+
+        // Each checkout takes row locks: keep a single client from hammering it.
+        RateLimiter::for('checkout', fn (Request $request) => Limit::perMinute(10)->by($request->session()->getId()));
     }
 }

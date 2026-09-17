@@ -19,7 +19,7 @@ class ArticleVariantFactory extends Factory
     {
         return [
             'article_id' => Article::factory(),
-            'color_name' => fake()->unique()->safeColorName(),
+            'color_name' => ucfirst(fake()->safeColorName()).' '.fake()->unique()->numberBetween(1, 9_999_999),
             'color_hex' => fake()->hexColor(),
             'size' => fake()->randomElement(Size::adult()),
             'sku' => 'SKU-'.Str::upper(Str::random(10)),

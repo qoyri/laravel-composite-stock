@@ -9,8 +9,13 @@ export default defineConfig({
             input: ['resources/css/app.css', 'resources/js/app.js'],
             refresh: true,
             fonts: [
-                bunny('Instrument Sans', {
-                    weights: [400, 500, 600],
+                // Same pairing as the original storefront: Inter for the UI,
+                // Fredoka for the playful slogans printed on the garments.
+                bunny('Inter', {
+                    weights: [300, 400, 500, 600],
+                }),
+                bunny('Fredoka', {
+                    weights: [500, 600],
                 }),
             ],
         }),

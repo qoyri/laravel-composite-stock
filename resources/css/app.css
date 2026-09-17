@@ -1,9 +1,90 @@
 @import 'tailwindcss';
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
+/*
+ * Tokens carried over from the original Next.js storefront (globals.css):
+ * a Scandinavian, almost monochrome palette with a few warm accents.
+ */
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+    --font-humor: var(--font-fredoka), var(--font-inter), ui-sans-serif, sans-serif;
+
+    --color-ink: #1a1a1a;
+    --color-ink-light: #333333;
+    --color-secondary: #f5f5f0;
+    --color-secondary-dark: #e8e8e0;
+    --color-accent: #2a5434;
+    --color-accent-light: #3d7048;
+    --color-warm: #d4a574;
+    --color-warm-dark: #b8935f;
+    --color-nordic: #4a6670;
+    --color-sand: #f7f3ed;
+
+    --animate-fade-in-up: fade-in-up 0.5s ease-out both;
+
+    @keyframes fade-in-up {
+        from { opacity: 0; transform: translateY(16px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+}
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        @apply bg-white text-ink antialiased;
+    }
+
+    a, button {
+        transition: all 0.2s ease-out;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+}
+
+@layer components {
+    /* Scandinavian-style buttons */
+    .btn-primary {
+        @apply inline-flex items-center justify-center bg-black px-8 py-3 text-xs tracking-wider text-white uppercase transition-colors hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50;
+    }
+
+    .btn-secondary {
+        @apply inline-flex items-center justify-center border border-gray-300 px-8 py-3 text-xs tracking-wider uppercase transition-colors hover:border-black;
+    }
+
+    /* Small spaced capitals used for every section label */
+    .eyebrow {
+        @apply text-xs font-light tracking-[0.3em] text-gray-500 uppercase;
+    }
+
+    .eyebrow-rule {
+        @apply mt-2 h-px w-12 bg-gray-300;
+    }
+
+    .label {
+        @apply mb-3 block text-xs tracking-wider text-gray-500 uppercase;
+    }
+
+    /* Underline-only inputs, as on the original checkout */
+    .input-line {
+        @apply w-full border-0 border-b border-gray-200 bg-transparent px-0 py-3 text-sm transition-colors focus:border-black focus:ring-0 focus:outline-none;
+    }
+
+    .input-box {
+        @apply w-full border border-gray-300 px-3 py-2 text-sm focus:border-black focus:outline-none;
+    }
+
+    .hover-lift {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
 }

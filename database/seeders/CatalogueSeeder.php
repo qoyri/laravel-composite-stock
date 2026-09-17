@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Enums\MarkingTechnique;
+use App\Enums\Silhouette;
 use App\Enums\Size;
 use App\Models\Article;
 use App\Models\ArticleVariant;
@@ -37,6 +38,14 @@ class CatalogueSeeder extends Seeder
         'Bleu ciel' => '#9EC5E8',
         'Naturel' => '#EDE6D6',
         'Beige' => '#CDBBA0',
+    ];
+
+    private const SILHOUETTES = [
+        'tshirt-h' => Silhouette::TShirt, 'oversize' => Silhouette::TShirt, 'hoodie-h' => Silhouette::Hoodie,
+        'sweat-h' => Silhouette::Sweatshirt, 'ml-h' => Silhouette::LongSleeve, 'tshirt-f' => Silhouette::TShirt,
+        'hoodie-f' => Silhouette::Hoodie, 'debardeur' => Silhouette::Tank, 'tshirt-e' => Silhouette::TShirt,
+        'sweat-e' => Silhouette::Sweatshirt, 'body' => Silhouette::Bodysuit, 'tote' => Silhouette::ToteBag,
+        'casquette' => Silhouette::Cap,
     ];
 
     public function run(): void
@@ -83,7 +92,7 @@ class CatalogueSeeder extends Seeder
     {
         $adult = Size::adult();
         $rows = [
-            // key => [category, name, material, colours, sizes, description]
+            // key => [category, name, material, colours, sizes, description]  (silhouette: see SILHOUETTES)
             'tshirt-h' => ['homme', 'T-shirt Classique', 'Coton bio 180 g/m²',
                 ['Noir', 'Blanc', 'Marine', 'Gris chiné', 'Vert forêt', 'Bordeaux', 'Moutarde'], array_slice($adult, 1),
                 'Coupe droite, col rond côtelé, coutures renforcées. Le basique qui encaisse les lavages.'],
@@ -133,6 +142,7 @@ class CatalogueSeeder extends Seeder
                 'slug' => Str::slug($name),
                 'description' => $description,
                 'material' => $material,
+                'silhouette' => self::SILHOUETTES[$key],
             ]);
 
             foreach ($colors as $color) {

@@ -58,6 +58,12 @@ class Order extends Model
         return $this->belongsTo(User::class, 'cancelled_by');
     }
 
+    /** @return HasMany<StockMovement, $this> */
+    public function stockMovements(): HasMany
+    {
+        return $this->hasMany(StockMovement::class);
+    }
+
     public function isCancelled(): bool
     {
         return $this->status === OrderStatus::Cancelled;

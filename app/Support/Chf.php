@@ -16,6 +16,7 @@ final class Chf
         $francs = number_format(intdiv($cents, 100), 0, '.', "'");
         $rappen = $cents % 100;
 
-        return $sign.$francs.'.'.($rappen === 0 ? '–' : sprintf('%02d', $rappen)).' CHF';
+        // Non-breaking space: an amount never wraps away from its currency.
+        return $sign.$francs.'.'.($rappen === 0 ? '–' : sprintf('%02d', $rappen))."\u{00A0}CHF";
     }
 }

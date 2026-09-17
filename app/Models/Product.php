@@ -55,10 +55,15 @@ class Product extends Pivot
         return $this->belongsTo(Marking::class);
     }
 
-    /** @return HasMany<OrderLine, $this> */
+    /**
+     * The key must be explicit: on a Pivot, getForeignKey() returns the pivot's
+     * parent key (null here), not "product_id".
+     *
+     * @return HasMany<OrderLine, $this>
+     */
     public function orderLines(): HasMany
     {
-        return $this->hasMany(OrderLine::class);
+        return $this->hasMany(OrderLine::class, 'product_id');
     }
 
     /**
@@ -72,6 +77,22 @@ class Product extends Pivot
         $query->where('products.is_active', true)
             ->whereHas('article', fn (Builder $q) => $q->where('is_active', true))
             ->whereHas('marking', fn (Builder $q) => $q->where('is_active', true));
+    }
+
+    /**
+     * At least one variant can be sold: the SQL twin of AvailabilityCalculator.
+     * min(variant stock, marking capacity) > 0 for some variant
+     *   ⇔ some variant has stock > 0 AND (marking unlimited OR stock >= units_per_item).
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function available(Builder $query): void
+    {
+        $query->whereHas('article.variants', fn (Builder $q) => $q->where('article_variants.stock', '>', 0))
+            ->whereHas('marking', fn (Builder $q) => $q->where(fn (Builder $q) => $q
+                ->where('markings.is_unlimited', true)
+                ->orWhereColumn('markings.stock', '>=', 'products.units_per_item')));
     }
 
     /** "J'habite chez mon chat — Hoodie". Needs `article` and `marking` loaded. */

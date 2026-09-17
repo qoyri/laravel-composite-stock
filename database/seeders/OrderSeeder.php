@@ -41,9 +41,12 @@ class OrderSeeder extends Seeder
         $products = Product::query()->sellable()->with('article.variants')->get();
         $admin = User::where('role', UserRole::Admin)->firstOrFail();
         $placed = [];
+        // Fixed reference: now() inside the loop would return the previous
+        // fake time and push every order further into the past.
+        $today = now();
 
         for ($i = 0; $i < self::ORDERS; $i++) {
-            Carbon::setTestNow(now()->subDays(mt_rand(0, 60))->subMinutes(mt_rand(0, 1440)));
+            Carbon::setTestNow($today->copy()->subDays(mt_rand(0, 45))->subMinutes(mt_rand(0, 1440)));
 
             $lines = [];
             foreach (range(1, mt_rand(1, 3)) as $_) {
