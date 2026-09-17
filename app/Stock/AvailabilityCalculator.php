@@ -51,6 +51,29 @@ final class AvailabilityCalculator
     }
 
     /**
+     * How many items of the product can be sold in total, all variants together.
+     *
+     * Not the sum of the matrix: the marking capacity is shared by every
+     * variant. 3 transfers left and 40 shirts across sizes means 3, not 3 per size.
+     *
+     * @param  iterable<ArticleVariant>  $variants
+     */
+    public function total(Product $product, iterable $variants): int
+    {
+        $textile = 0;
+        foreach ($variants as $variant) {
+            if ($variant->article_id !== $product->article_id) {
+                throw new LogicException('The variant does not belong to the product\'s article.');
+            }
+            $textile += $variant->stock;
+        }
+
+        $capacity = $this->markingCapacity($product->marking, $product->units_per_item);
+
+        return $capacity === null ? $textile : min($textile, $capacity);
+    }
+
+    /**
      * Number of items the marking can still be applied to, or null when unlimited.
      */
     public function markingCapacity(Marking $marking, int $unitsPerItem): ?int

@@ -52,6 +52,29 @@ it('refuses a variant that belongs to another article', function () {
     (new AvailabilityCalculator)->quantity($product, $foreignVariant);
 })->throws(LogicException::class);
 
+it('caps the total over all variants by the shared marking capacity', function () {
+    // 3 transfers left, 40 shirts over two sizes: 3 sellable in total,
+    // even though each size, taken alone, shows 3.
+    [$product] = pair(0, 3);
+    $variants = [
+        new ArticleVariant(['article_id' => 1, 'stock' => 25]),
+        new ArticleVariant(['article_id' => 1, 'stock' => 15]),
+    ];
+    $calculator = new AvailabilityCalculator;
+
+    expect($calculator->total($product, $variants))->toBe(3)
+        ->and(array_sum(array_map(fn ($v) => $calculator->quantity($product, $v), $variants)))->toBe(6);
+});
+
+it('totals the textile stock when the marking is unlimited', function () {
+    [$product] = pair(0, 0, unlimited: true);
+
+    expect((new AvailabilityCalculator)->total($product, [
+        new ArticleVariant(['article_id' => 1, 'stock' => 25]),
+        new ArticleVariant(['article_id' => 1, 'stock' => 15]),
+    ]))->toBe(40);
+});
+
 it('builds the availability matrix of every variant of the product', function () {
     [$product] = pair(0, 5);
     $variants = collect([

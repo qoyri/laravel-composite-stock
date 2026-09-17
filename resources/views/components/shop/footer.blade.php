@@ -48,6 +48,7 @@
                 <div class="text-sm text-gray-600">© {{ date('Y') }} Archie Cool. Projet de démonstration.</div>
                 <div class="flex items-center space-x-6">
                     <a href="{{ route('about') }}" class="text-sm text-gray-600 hover:text-gray-900">Le magasin</a>
+                    <a href="{{ route('admin.login') }}" class="text-xs text-gray-300 hover:text-gray-400">Admin</a>
                 </div>
             </div>
         </div>
