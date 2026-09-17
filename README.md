@@ -251,11 +251,11 @@ plutôt que de refus propre (vérifié, §8).
 
 ## 8. Comment c'est testé — et comment les tests ont été vérifiés
 
-**163 tests Pest** sur PostgreSQL (pas de SQLite : il ignore `FOR UPDATE`).
+**165 tests Pest** sur PostgreSQL (pas de SQLite : il ignore `FOR UPDATE`).
 
 | Zone | Tests | Ce qui est couvert |
 |---|---:|---|
-| `tests/Unit` | 15 | calcul de disponibilité (minimum, illimité, arrondi `units_per_item`), format CHF |
+| `tests/Unit` | 17 | calcul de disponibilité (minimum, illimité, arrondi `units_per_item`, total plafonné par la capacité partagée), format CHF |
 | `tests/Feature/Stock` | 41 | décrément des deux composants, agrégation par composant, refus sans aucune écriture, annulation, ajustements, contraintes en base, scope SQL ≡ calcul PHP |
 | `tests/Feature/Shop` | 40 | pages, panier, refus au checkout après une rupture, validation, URL signée |
 | `tests/Feature/Admin` | 45 | connexion, limitation des tentatives, **chaque route** du back-office pour invité / staff / admin |
