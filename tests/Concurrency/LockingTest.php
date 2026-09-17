@@ -16,6 +16,10 @@ use Illuminate\Support\Facades\Queue;
  * (observed through DB::listen, right after it ran a given query), a second
  * PostgreSQL session tries to lock the same rows with a short lock_timeout.
  * No sleeps, no timing assumptions: a held lock always yields SQLSTATE 55P03.
+ *
+ * The probe must run BEFORE the action's first write to a row: an UPDATE
+ * locks the row by itself, so probing after it would pass even without any
+ * FOR UPDATE — each test below was checked by removing the lock it targets.
  */
 
 beforeEach(fn () => Queue::fake());
@@ -124,7 +128,7 @@ it('locks the order and its components while cancelling', function () {
     $order = app(PlaceOrder::class)->handle([line($product, $variant)], customer());
 
     $locks = probeWhile(
-        marker: 'update "orders"',
+        marker: 'from "markings" where',   // components locked, nothing written yet
         probe: fn () => [
             'order' => $this->canLock('orders', $order->id),
             'variant' => $this->canLock('article_variants', $variant->id),
@@ -141,7 +145,7 @@ it('locks the row while adjusting stock by hand', function () {
     $user = User::factory()->create();
 
     $locked = probeWhile(
-        marker: 'update "article_variants"',
+        marker: 'from "article_variants" where',   // the locking read, before the UPDATE
         probe: fn () => $this->canLock('article_variants', $variant->id),
         action: fn () => app(AdjustStock::class)->handle($variant, 3, $user),
     );
