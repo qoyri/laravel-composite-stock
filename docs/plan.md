@@ -57,28 +57,33 @@ ses tests jamais.
 ## Jour 2 — surfaces
 
 ### 6. Vitrine (Blade + Alpine, design repris de la v1)
-- [ ] Layout : en-tête (sans sélecteur de devise), pied de page, tiroir panier
-- [ ] Accueil, catalogue, fiche produit (matrice de disponibilité), panier, checkout,
+- [x] Layout : en-tête (sans sélecteur de devise), pied de page, tiroir panier
+- [x] Accueil, catalogue, fiche produit (matrice de disponibilité), panier, checkout,
       confirmation (URL signée)
-- [ ] `Cart` en session, Form Requests, contrôleurs minces
-- [ ] Composant `<x-garment-preview>` (SVG)
-- [ ] Livraison 5.– CHF, gratuite dès 50.– CHF
+- [x] `Cart` en session, Form Requests, contrôleurs minces
+- [x] Composant `<x-garment-preview>` (SVG)
+- [x] Livraison 5.– CHF, gratuite dès 50.– CHF
 
 ### 7. Job
 - [x] `SendOrderConfirmation` (queue database, `afterCommit`) + mailable Markdown (fait au jour 1, dispatché par PlaceOrder)
-- [ ] Tests : dispatch sur succès uniquement, envoi du mail
+- [x] Tests : dispatch sur succès uniquement, envoi du mail
 
 ### 8. Back-office
-- [ ] Login (rate limit), middleware `auth`, policies
-- [ ] Tableau de bord, articles + variantes, marquages, produits, ajustement de stock,
+- [x] Login (rate limit), middleware `auth`, policies
+- [x] Tableau de bord, articles + variantes, marquages, produits, ajustement de stock,
       commandes (liste, détail, annulation)
-- [ ] Tests d'autorisation (invité, staff, admin)
-- [ ] Test N+1 (nombre de requêtes constant sur le catalogue et la liste des commandes)
+- [x] Tests d'autorisation (invité, staff, admin)
+- [x] Test N+1 (nombre de requêtes constant sur le catalogue et la liste des commandes)
 
 ### 9. README
-- [ ] Constat v1 (sources : `docs/v1-notes.md`)
-- [ ] Problème du stock croisé, disponibilité calculée
-- [ ] FK composite mise en avant
-- [ ] Verrouillage pessimiste : pourquoi, alternatives écartées
-- [ ] Stratégie de test de concurrence
-- [ ] Écueils rencontrés, installation, comptes de démo
+- [x] Constat v1 (sources : `docs/v1-notes.md`)
+- [x] Problème du stock croisé, disponibilité calculée
+- [x] FK composite mise en avant
+- [x] Verrouillage pessimiste : pourquoi, alternatives écartées
+- [x] Stratégie de test de concurrence
+- [x] Écueils rencontrés, installation, comptes de démo
+
+### Ajouts du jour 2
+- [x] Colonne `articles.silhouette` (forme de l'aperçu SVG)
+- [x] Scope `Product::available()` (jumeau SQL du calcul) + test de concordance
+- [x] Contrôle par mutation de chaque verrou ; sondes corrigées pour `CancelOrder` et `AdjustStock`
