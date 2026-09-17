@@ -1,0 +1,26 @@
+services:
+  pgsql:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: composite_stock
+      POSTGRES_USER: composite
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "${FORWARD_DB_PORT:-5433}:5432"
+    volumes:
+      - pgsql-data:/var/lib/postgresql
+      - ./docker/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql:ro
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "composite", "-d", "composite_stock"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "${FORWARD_MAILPIT_PORT:-1025}:1025"
+      - "${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025"
+
+volumes:
+  pgsql-data:
