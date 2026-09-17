@@ -232,3 +232,16 @@ describe('admin', function () {
         $this->post(route('admin.stock.variants.adjust', $variant), ['delta' => $delta])->assertSessionHasErrors('delta');
     })->with([0, '', 'dix', 1.5]);
 });
+
+it('lists products with the lowest sellable quantity first, capped by the shared marking', function () {
+    $this->actingAs(User::factory()->staff()->create());
+    [$plenty] = sellable(variantStock: 40, markingStock: 40);
+    [$soldOut] = sellable(variantStock: 40, markingStock: 0);
+    [$scarce, $variant, $marking] = sellable(variantStock: 20, markingStock: 3);
+    ArticleVariant::factory()->for($variant->article)->stock(20)->create();   // 40 shirts, 3 transfers
+
+    $this->get(route('admin.products.index'))
+        ->assertOk()
+        ->assertSeeInOrder([$soldOut->marking->name, $scarce->marking->name, $plenty->marking->name])
+        ->assertSee('(3)');
+});

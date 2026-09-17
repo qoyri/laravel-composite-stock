@@ -2,7 +2,7 @@
     <div class="mb-8 flex items-center justify-between">
         <div>
             <x-eyebrow>Produits vendables</x-eyebrow>
-            <p class="mt-3 text-sm text-gray-500">Un produit = un article + un marquage. Sa disponibilité est calculée, jamais stockée.</p>
+            <p class="mt-3 text-sm text-gray-500">Un produit = un article + un marquage. Sa disponibilité est calculée, jamais stockée. Les plus bas en premier.</p>
         </div>
         @can('create', App\Models\Product::class)
             <a href="{{ route('admin.products.create') }}" class="btn-primary px-6"><x-icon name="plus" class="mr-2 h-4 w-4" /> Nouveau produit</a>

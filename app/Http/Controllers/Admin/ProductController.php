@@ -26,11 +26,14 @@ class ProductController extends Controller
             ->orderBy('marking_id')->orderBy('article_id')
             ->get();
 
+        $sellable = $products->mapWithKeys(fn (Product $p) => [
+            $p->id => $availability->total($p, $p->article->variants),
+        ]);
+
         return view('admin.products.index', [
-            'products' => $products,
-            'availability' => $products->mapWithKeys(fn (Product $p) => [
-                $p->id => $availability->total($p, $p->article->variants),
-            ]),
+            // What is about to run out comes first. Computed, so sorted in PHP.
+            'products' => $products->sortBy(fn (Product $p) => $sellable[$p->id])->values(),
+            'availability' => $sellable,
         ]);
     }
 
