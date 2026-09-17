@@ -29,6 +29,9 @@ commit                                   → puis job de confirmation en file
 > mesuraient le verrou que pose n'importe quel `UPDATE`, pas celui du code.
 > Seul le retrait volontaire des verrous (contrôle par mutation) l'a montré.
 
+![Catalogue de la boutique : filtres à gauche, cartes produit dessinées en SVG, badge « Épuisé » sur la troisième](docs/screenshots/catalog.png)
+*Le catalogue reprend l'identité de la v1. « Ours des montagnes » porte le badge Épuisé : ses transferts de sérigraphie sont à zéro, même s'il reste des sweats en stock.*
+
 ---
 
 ## Sommaire
@@ -155,6 +158,11 @@ ce que coûte un oubli dans cette chaîne (§2).
   de démonstration.
 - Le coût à la lecture est borné : une page de catalogue fait le même nombre de
   requêtes pour 3 ou pour 12 produits (§8).
+- La fiche produit reçoit la **matrice couleur × taille** calculée côté serveur ;
+  Alpine se contente de l'afficher quand le client change de couleur ou de taille.
+
+![Fiche produit : pastilles couleur, taille XS barrée, taille M sélectionnée, message « Plus que 2 en stock »](docs/screenshots/product.png)
+*Chaque bouton de taille reflète `min(stock de la variante, capacité du marquage)` : XS est barrée (épuisée), M affiche « Plus que 2 en stock ». Rien de tout cela n'est stocké.*
 
 Quand est-ce que je stockerais une valeur dérivée ? Pour un catalogue de
 centaines de milliers de lignes triées par disponibilité : alors un modèle de
@@ -204,6 +212,9 @@ contrainte attendue.
 4. La demande est **agrégée par composant** (`StockDemand`) et comparée aux
    lignes verrouillées. Toutes les ruptures sont collectées : le client corrige
    son panier en une fois (`InsufficientStock`).
+
+   ![Panier après un refus : bandeau « Le stock a changé depuis l'ajout au panier » listant l'article et le marquage manquants](docs/screenshots/cart-shortage.png)
+   *Entre l'ajout au panier et la validation, le t-shirt noir M et les transferts « raclette » sont tombés à 1. Le refus nomme les deux composants, rien n'est débité, le panier est conservé.*
 5. Création de la commande, décrément des deux composants, journal.
 6. `SendOrderConfirmation::dispatch($order)->afterCommit()`.
 
@@ -247,18 +258,21 @@ plutôt que de refus propre (vérifié, §8).
   Le stock d'un marquage n'est pas éditable dans son formulaire (la Form Request
   l'interdit) : il ne bouge que par ajustement, vente ou annulation.
 
+![Journal des mouvements de stock : ventes sur des marquages et des variantes textiles, avec le stock après chaque mouvement](docs/screenshots/admin-stock-ledger.png)
+*Les mouvements d'une commande partagent sa référence, avec le delta et le stock restant. Une ligne de 2 pièces laisse −2 sur sa variante textile et −2 sur son marquage — sauf marquage imprimé à la demande, qui n'a pas de stock et donc pas de ligne.*
+
 ---
 
 ## 8. Comment c'est testé — et comment les tests ont été vérifiés
 
-**169 tests Pest** sur PostgreSQL (pas de SQLite : il ignore `FOR UPDATE`).
+**170 tests Pest** sur PostgreSQL (pas de SQLite : il ignore `FOR UPDATE`).
 
 | Zone | Tests | Ce qui est couvert |
 |---|---:|---|
 | `tests/Unit` | 17 | calcul de disponibilité (minimum, illimité, arrondi `units_per_item`, total plafonné par la capacité partagée), format CHF |
 | `tests/Feature/Stock` | 43 | décrément des deux composants, agrégation par composant, refus sans aucune écriture, annulation, ajustements, contraintes en base, scope SQL ≡ calcul PHP |
 | `tests/Feature/Shop` | 40 | pages, panier, refus au checkout après une rupture, validation, URL signée |
-| `tests/Feature/Admin` | 47 | connexion, limitation des tentatives, **chaque route** du back-office pour invité / staff / admin, messages d'erreur en français |
+| `tests/Feature/Admin` | 48 | connexion, limitation des tentatives, **chaque route** du back-office pour invité / staff / admin, messages d'erreur en français |
 | `QueryCountTest` | 10 | requêtes constantes sur les listes (N+1) |
 | `SendOrderConfirmationTest` | 4 | job en file `database`, envoi du mail, reprises |
 | `tests/Concurrency` | 8 | verrous et course réelle |
@@ -413,6 +427,16 @@ verrou](#le-test-de-verrou-qui-passait-sans-verrou). Les autres :
     la transaction (relevé par une revue de code). C'est le même principe que
     le figeage de `marking_units` : ne pas se fier à un état qu'on ne contrôle
     pas au moment où on en a besoin.
+14. **Les tests vérifiaient les clés d'erreur, pas ce que voit l'utilisateur.**
+    Soumis dans un vrai navigateur, les formulaires du back-office affichaient
+    « The name field is required. » (Laravel ne fournit pas le français :
+    `lang/fr/validation.php`), et une erreur d'ajustement de stock, affichée
+    plus bas dans la page, restait invisible après la redirection. Le layout
+    récapitule désormais les erreurs en haut de page, et un test exige le
+    texte français et la position du bandeau.
+
+    ![Formulaire « Nouvel article » refusé : bandeau « Rien n'a été enregistré » en haut, messages en français sous les champs Nom et Description](docs/screenshots/admin-validation-error.png)
+    *Le bandeau en haut rend le refus visible sans défiler ; les messages sous les champs disent quoi corriger. La matière saisie est conservée.*
 
 ---
 
@@ -459,6 +483,10 @@ Conventions Laravel utilisées et pourquoi :
   combinaison ; une disponibilité « en direct » n'aurait rien garanti de plus que
   la vérification sous verrou. Faute de photos, `<x-garment-preview>` dessine le
   vêtement en SVG, dans la couleur de la variante, avec le slogan.
+- **Back-office** : même identité, barre latérale fixe, policies par rôle.
+
+![Liste des produits du back-office triée par quantité vendable : deux produits épuisés, trois à 3 unités, puis le reste](docs/screenshots/admin-products.png)
+*La colonne « Vendables » vaut `min(stock textile de toutes les variantes, capacité du marquage)` et la liste commence par ce qui va manquer : les trois produits « Le lundi, c'est non » partagent les 3 mêmes transferts.*
 
 ---
 
