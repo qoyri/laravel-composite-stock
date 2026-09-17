@@ -251,12 +251,12 @@ plutôt que de refus propre (vérifié, §8).
 
 ## 8. Comment c'est testé — et comment les tests ont été vérifiés
 
-**167 tests Pest** sur PostgreSQL (pas de SQLite : il ignore `FOR UPDATE`).
+**169 tests Pest** sur PostgreSQL (pas de SQLite : il ignore `FOR UPDATE`).
 
 | Zone | Tests | Ce qui est couvert |
 |---|---:|---|
 | `tests/Unit` | 17 | calcul de disponibilité (minimum, illimité, arrondi `units_per_item`, total plafonné par la capacité partagée), format CHF |
-| `tests/Feature/Stock` | 41 | décrément des deux composants, agrégation par composant, refus sans aucune écriture, annulation, ajustements, contraintes en base, scope SQL ≡ calcul PHP |
+| `tests/Feature/Stock` | 43 | décrément des deux composants, agrégation par composant, refus sans aucune écriture, annulation, ajustements, contraintes en base, scope SQL ≡ calcul PHP |
 | `tests/Feature/Shop` | 40 | pages, panier, refus au checkout après une rupture, validation, URL signée |
 | `tests/Feature/Admin` | 47 | connexion, limitation des tentatives, **chaque route** du back-office pour invité / staff / admin, messages d'erreur en français |
 | `QueryCountTest` | 10 | requêtes constantes sur les listes (N+1) |
@@ -405,6 +405,14 @@ verrou](#le-test-de-verrou-qui-passait-sans-verrou). Les autres :
     que les relations imbriquées. Le mode strict l'a signalé immédiatement.
 12. **Pas de `CHECK` dans le schema builder de Laravel** : les contraintes sont
     posées en `DB::statement()` dans les migrations.
+13. **Une Action ne dépend pas de la validation de ses appelants.** Les Form
+    Requests garantissent une quantité ≥ 1, mais `PlaceOrder` ne le supposait
+    pas : une ligne à −3, venue d'un futur appelant, aurait transformé le
+    décrément en remise en stock, arrêtée seulement par une contrainte `CHECK`
+    (erreur 500). L'Action refuse désormais toute quantité < 1 avant d'ouvrir
+    la transaction (relevé par une revue de code). C'est le même principe que
+    le figeage de `marking_units` : ne pas se fier à un état qu'on ne contrôle
+    pas au moment où on en a besoin.
 
 ---
 

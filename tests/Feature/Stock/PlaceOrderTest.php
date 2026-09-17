@@ -208,6 +208,21 @@ describe('a refused order', function () {
         placeOrder([]);
     })->throws(InvalidArgumentException::class);
 
+    it('refuses a zero or negative quantity without touching the stock', function (int $quantity) {
+        // The HTTP layer never builds such a line, but the Action must not rely
+        // on its callers: a negative quantity would otherwise *add* stock and
+        // log it as a sale, stopped only by a CHECK constraint as a raw 500.
+        [$product, $variant, $marking] = sellable(variantStock: 5, markingStock: 5);
+
+        expect(fn () => placeOrder([line($product, $variant, 1), line($product, $variant, $quantity)]))
+            ->toThrow(InvalidArgumentException::class);
+
+        expect($variant->fresh()->stock)->toBe(5)
+            ->and($marking->fresh()->stock)->toBe(5)
+            ->and(Order::count())->toBe(0)
+            ->and(StockMovement::count())->toBe(0);
+    })->with([0, -3]);
+
     it('refuses a variant that does not belong to the product', function () {
         [$product] = sellable();
         [, $foreignVariant] = sellable();

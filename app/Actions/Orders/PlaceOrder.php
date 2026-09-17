@@ -55,6 +55,14 @@ final readonly class PlaceOrder
             throw new InvalidArgumentException('Cannot place an empty order.');
         }
 
+        // Not left to the callers' validation: a negative quantity would turn
+        // the decrement into a restock.
+        foreach ($lines as $line) {
+            if ($line->quantity < 1) {
+                throw new InvalidArgumentException("Invalid quantity {$line->quantity} for cart line {$line->key()}.");
+            }
+        }
+
         return DB::transaction(function () use ($lines, $customer): Order {
             $products = Product::query()
                 ->with('article')
