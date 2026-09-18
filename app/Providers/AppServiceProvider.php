@@ -11,6 +11,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -22,6 +23,9 @@ class AppServiceProvider extends ServiceProvider
         // Outside production, lazy loading throws: an N+1 fails the test suite
         // instead of silently slowing down a page.
         Model::shouldBeStrict(! $this->app->isProduction());
+
+        // migrate:fresh and db:wipe refuse to run in production.
+        DB::prohibitDestructiveCommands($this->app->isProduction());
 
         // Store short aliases instead of PHP class names in stock_movements.
         Relation::enforceMorphMap([
