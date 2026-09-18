@@ -265,12 +265,12 @@ plutôt que de refus propre (vérifié, §8).
 
 ## 8. Comment c'est testé — et comment les tests ont été vérifiés
 
-**170 tests Pest** sur PostgreSQL (pas de SQLite : il ignore `FOR UPDATE`).
+**172 tests Pest** sur PostgreSQL (pas de SQLite : il ignore `FOR UPDATE`).
 
 | Zone | Tests | Ce qui est couvert |
 |---|---:|---|
 | `tests/Unit` | 17 | calcul de disponibilité (minimum, illimité, arrondi `units_per_item`, total plafonné par la capacité partagée), format CHF |
-| `tests/Feature/Stock` | 43 | décrément des deux composants, agrégation par composant, refus sans aucune écriture, annulation, ajustements, contraintes en base, scope SQL ≡ calcul PHP |
+| `tests/Feature/Stock` | 45 | décrément des deux composants, agrégation par composant, refus sans aucune écriture, annulation, ajustements, contraintes en base, scope SQL ≡ calcul PHP |
 | `tests/Feature/Shop` | 40 | pages, panier, refus au checkout après une rupture, validation, URL signée |
 | `tests/Feature/Admin` | 48 | connexion, limitation des tentatives, **chaque route** du back-office pour invité / staff / admin, messages d'erreur en français |
 | `QueryCountTest` | 10 | requêtes constantes sur les listes (N+1) |
@@ -438,6 +438,14 @@ verrou](#le-test-de-verrou-qui-passait-sans-verrou). Les autres :
     ![Formulaire « Nouvel article » refusé : bandeau « Rien n'a été enregistré » en haut, messages en français sous les champs Nom et Description](docs/screenshots/admin-validation-error.png)
     *Le bandeau en haut rend le refus visible sans défiler ; les messages sous les champs disent quoi corriger. La matière saisie est conservée.*
 
+15. **Un modèle `Pivot` est non gardé par défaut** (`$guarded = []`).
+    `Product` en hérite : sans son attribut `#[Fillable]`, n'importe quelle
+    donnée de formulaire aurait pu écrire `id` ou `created_at`. Relevé en
+    reprenant à la main les contrôles d'Enlightn, qui ne s'installe pas ici
+    (il demande Laravel ≤ 11, Larastan 2 et PHPStan 1). Un test fige
+    désormais ce qui est assignable et vérifie qu'un attribut inattendu lève
+    une exception plutôt que d'être ignoré.
+
 ---
 
 ## 10. Tour du code
@@ -511,14 +519,18 @@ php artisan queue:work               # envoie les confirmations (visibles dans M
 | `admin@archiecool.test` | `password` | tout |
 | `staff@archiecool.test` | `password` | lecture, ajustements de stock |
 
-Qualité (les trois sont bloquants en CI) :
+Qualité (les quatre sont bloquants en CI) :
 
 ```bash
 composer test                        # Pest, suite Concurrency comprise
 vendor/bin/pest --exclude-group=concurrency
 composer analyse                     # PHPStan, niveau max, sans baseline
 vendor/bin/pint --test
+composer audit --locked              # avis de sécurité, dépendances de dev comprises
 ```
+
+Dependabot propose chaque semaine les mises à jour Composer, npm et GitHub
+Actions. Pas de CodeQL : il ne couvre pas PHP.
 
 ---
 
